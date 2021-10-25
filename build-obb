@@ -8,36 +8,40 @@ tools=$basedir/tools
 silent=--silent
 sourcedir=$(cd $(dirname $0) && pwd)
 release=$1
-pkgdir=$PWD/zip-building
+pkgdir=$PWD/pkg
 pkgver=$release
 channel=bionic
-
+rootdir=$PWD
 
 #
 download ()
 {
     test -d $downloads || mkdir -p $downloads
     test -f $downloads/$(basename $2) || wget -O $downloads/$(basename $2) ${3:-$2}
-    rm -rf $1
+    #rm -rf $1
     case $2 in
+        *.deb)
+            bsdtar -xf $downloads/$(basename $2) 
+            cd $pkgdir
+            bsdtar -xf $basedir/$1/data.tar.xz
+            cd $basedir/$1/ ;;
         *.zip)
-            unzip -q $downloads/$(basename $2) ;;
+            unzip -q $downloads/$(basename $2) || true ;;
         *)
             tar xf $downloads/$(basename $2) ;;
-	*.deb)
-	    bsdtar -xf $downloads/$(basename $2) -C $1
-	    bsdtar -xf $1/data.tar.xz -C $pkgdir/ ;;
     esac
 }
 
 
-first ()
+clean ()
 {
+mv $downloads $rootdir/downloads
 test -z "$release" || rm -rf $basedir
 test -z "$release" || rm -rf $pkgdir
 test -d $basedir || mkdir $basedir
 test -d $pkgdir || mkdir $pkgdir
 cd $basedir
+mv $rootdir/downloads $downloads
 }
 
 config_mainzip ()
@@ -46,6 +50,7 @@ config_mainzip ()
     cd base
     download base base-all.zip URL
     #download base base-minimal1.zip URL
+    mv ./* $pkgdir
     cd ..
 }
 
@@ -53,7 +58,7 @@ config_wine-devel-i386 ()
 {
     mkdir -p wine-devel-i386
     cd wine-devel-i386
-    download wine-devel-i386 wine-devel-i386.deb https://dl.winehq.org/wine-builds/ubuntu/dists/${channel}/main/binary-i386/wine-devel-i386_${pkgver}~${channel}-1_i386.deb
+    download wine-devel-i386 wine-devel-i386-$pkgver.deb https://dl.winehq.org/wine-builds/ubuntu/dists/${channel}/main/binary-i386/wine-devel-i386_${pkgver}~${channel}-1_i386.deb
     cd ..
 }
 
@@ -61,7 +66,7 @@ config_wine-devel ()
 {
     mkdir -p wine-devel
     cd wine-devel
-    download wine-devel wine-devel.deb https://dl.winehq.org/wine-builds/ubuntu/dists/${channel}/main/binary-i386/wine-devel_${pkgver}~${channel}-1_i386.deb
+    download wine-devel wine-devel-$pkgver.deb https://dl.winehq.org/wine-builds/ubuntu/dists/${channel}/main/binary-i386/wine-devel_${pkgver}~${channel}-1_i386.deb
     cd ..
 }
 
@@ -69,33 +74,36 @@ config_winehq-devel ()
 {
     mkdir -p winehq-devel
     cd winehq-devel
-    download winehq-devel winehq-devel.deb https://dl.winehq.org/wine-builds/ubuntu/dists/${channel}/main/binary-i386/winehq-devel_${pkgver}~${channel}-1_i386.deb
+    download winehq-devel winehq-devel-$pkgver.deb https://dl.winehq.org/wine-builds/ubuntu/dists/${channel}/main/binary-i386/winehq-devel_${pkgver}~${channel}-1_i386.deb
     cd ..
 }
 
 install-all ()
 {
     cd $pkgdir
-    sudo zip --symlink -r -9 ../wine-dev-$release.zip .
+    zip --symlink -r -9 ../wine-dev-$release.zip .
+    clean
+    cd ..
+    rm -rf $pkgdir
 }
 
-#OldMain
-
-mkdir zip-building
-unzip base-all.zip -d zip-building
+##OldMain
+#
+#mkdir zip-building
+#unzip base-all.zip -d zip-building
 #unzip base-minimal*.zip -d zip-building
-cd zip-building
-tar -xvJf ../in/1wine-devel-i386.tar.xz
-tar -xvJf ../in/2wine-devel.tar.xz
-tar -xvJf ../in/3winehq-devel.tar.xz
-sudo zip --symlink -r -9 ~/wine-dev-6.ver.zip .
-cd 
-sudo rm -rf zip-building
+#cd zip-building
+#tar -xvJf ../in/1wine-devel-i386.tar.xz
+#tar -xvJf ../in/2wine-devel.tar.xz
+#tar -xvJf ../in/3winehq-devel.tar.xz
+#sudo zip --symlink -r -9 ~/wine-dev-6.ver.zip .
+#cd 
+#sudo rm -rf zip-building
 
 #Main
-first
+clean
 config_mainzip
 test -d wine-devel-i386 || config_wine-devel-i386
 test -d wine-devel || config_wine-devel
 test -d winehq-devel || config_winehq-devel
-test -d $pkgdir || install-all
+install-all
