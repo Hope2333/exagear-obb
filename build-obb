@@ -66,6 +66,7 @@ config_mainzip ()
     mkdir -p base
     cd base
     download base base-all.zip https://github.com/Hope2333/exagear-obb/releases/download/0.0.1026/base-all.zip
+    #download base base-all.zip https://hub.fastgit.org/Hope2333/exagear-obb/releases/download/0.0.1026/base-all.zip
     #download base base-minimal1.zip URL
     mv ./* $pkgdir
     cd ..
