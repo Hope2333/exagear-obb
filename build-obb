@@ -32,23 +32,33 @@ download ()
     esac
 }
 
+pass ()
+{
+    set +x
+    echo " "
+    read -s -p "Enter your Password:" pass
+    echo " "
+    echo "Starting..."
+    echo " "
+    set -xe
+}
 
 clean ()
 {
-mv $downloads $rootdir/downloads
-test -z "$release" || rm -rf $basedir
-test -z "$release" || rm -rf $pkgdir
-test -d $basedir || mkdir $basedir
-test -d $pkgdir || mkdir $pkgdir
-cd $basedir
-mv $rootdir/downloads $downloads
+    mv $downloads $rootdir/downloads
+    test -z "$release" || rm -rf $basedir
+    test -z "$release" || rm -rf $pkgdir
+    test -d $basedir || mkdir $basedir
+    test -d $pkgdir || mkdir $pkgdir
+    cd $basedir
+    mv $rootdir/downloads $downloads
 }
 
 config_mainzip ()
 {
     mkdir -p base
     cd base
-    download base base-all.zip URL
+    download base base-all.zip https://github.com/Hope2333/exagear-obb/releases/download/0.0.1026/base-all.zip
     #download base base-minimal1.zip URL
     mv ./* $pkgdir
     cd ..
@@ -81,9 +91,11 @@ config_winehq-devel ()
 install-all ()
 {
     cd $pkgdir
-    zip --symlink -r -9 ../wine-dev-$release.zip .
+    #echo -e "'$pass\n"|sudo zip --symlink -rq9 ../wine-dev-$release.zip .
+    sudo zip --symlink -rq9 ../wine-dev-$release.zip .
     clean
     cd ..
+    #echo -e "$pass\n"|sudo rm -rf $pkgdir
     rm -rf $pkgdir
 }
 
@@ -101,6 +113,7 @@ install-all ()
 #sudo rm -rf zip-building
 
 #Main
+#pass
 clean
 config_mainzip
 test -d wine-devel-i386 || config_wine-devel-i386
