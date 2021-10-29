@@ -2,15 +2,15 @@
 
 set -xe
 
+channel=bionic
+
 basedir=$PWD/build
 downloads=$basedir/packaging
 tools=$basedir/tools
-silent=--silent
 sourcedir=$(cd $(dirname $0) && pwd)
 release=$1
 pkgdir=$PWD/pkg
 pkgver=$release
-channel=bionic
 rootdir=$PWD
 
 #
@@ -45,6 +45,7 @@ pass ()
 
 clean ()
 {
+    mkdir -p $downloads
     mv $downloads $rootdir/downloads
     test -z "$release" || rm -rf $basedir
     test -z "$release" || rm -rf $pkgdir
@@ -52,6 +53,12 @@ clean ()
     test -d $pkgdir || mkdir $pkgdir
     cd $basedir
     mv $rootdir/downloads $downloads
+}
+
+clean-all ()
+{
+    rm -rf $basedir
+    rm -rf $pkgdir
 }
 
 config_mainzip ()
@@ -99,20 +106,8 @@ install-all ()
     rm -rf $pkgdir
 }
 
-##OldMain
-#
-#mkdir zip-building
-#unzip base-all.zip -d zip-building
-#unzip base-minimal*.zip -d zip-building
-#cd zip-building
-#tar -xvJf ../in/1wine-devel-i386.tar.xz
-#tar -xvJf ../in/2wine-devel.tar.xz
-#tar -xvJf ../in/3winehq-devel.tar.xz
-#sudo zip --symlink -r -9 ~/wine-dev-6.ver.zip .
-#cd 
-#sudo rm -rf zip-building
-
 #Main
+
 #pass
 clean
 config_mainzip
