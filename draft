@@ -20,22 +20,23 @@ main0() {
     case $1 in
     c | -c | -clean | clean | --clean)
     
-    
+    ;;
     baseurl | --baseurl)
     
-    
+    ;;
     O | -O | Output | --Output)
     
-    
+    ;;
     --version)
     
-    
+    ;;
     -h* | --h* | *)
         if  [ "$LANG" == "zh_CN.UTF-8" -o "$LANG" == "en_US.UTF-8" ]
          then
         help-$LANG
          else help-en_US.UTF-8
         fi
+	;;
     esac
 }
 
