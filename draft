@@ -1,40 +1,61 @@
 #!/bin/bash
 #Options to be added in the future:Stable and Staging versions are supported.
-az=$# a1=$1 a2=$2 a3=$3 a4=$4 a5=$5 a6=$6 a7=$7 a8=$8 a9=$9 aa=$* ab=$@ ax=$0
 #
-main ()
-{
-  if   [ "$az" == "0" ]
+
+channel=bionic
+
+main() {
+  set_env
+  if   [ "$#" == "0" ]
    then
     printf "%s\n" "${RED}Error${BLUE}: ${RESET}No additional options!"
-    printf "%s\n"
-    help
-  elif [ "$az" == "1" ]
+    main0
+  elif [ "$#" >= "1" ]
    then
-    printf "%s\n" "${YELLOW}This is some part yet."
-  elif [ "$az" == "2" ]
-   then
-    printf "%s\n" "${YELLOW}This is some part yet."
-  fi
+    main0 $@
+   fi
 }
 
-help ()
-{
-printf "%s\n" "${RESET}ExaGear ED obb file builder ${BLUE}v1.0"
-printf "%s\n" "${RESET}  Usage: $0 ${YELLOW}[${BOLD}options${YELLOW}]"
-printf "%s\n"
-printf "%s\n" "${RESET}Optional options${GREEN}:"
-printf "%s\n" "    ${PURPLE}--baseurl${GREEN}=${YELLOW}\"URL\"    ${RESET}Change rootfs download form default url to your ${GREEN}<${YELLOW}URL${GREEN}>${RESET}."
-printf "%s\n" "    ${PURPLE}-${RESET}-${GREEN}(${RESET}c${GREEN})${PURPLE}lean          ${RESET}Clean all files with download ${GREEN}[${CYAN}Alone${GREEN}]${RESET}."
-printf "%s\n" "    ${PURPLE}-${RESET}-${GREEN}(${RESET}h${GREEN})${PURPLE}elp           ${RESET}Display help documentation ${GREEN}[${CYAN}Alone${GREEN}]${RESET}."
-printf "%s\n" "    ${PURPLE}-${RESET}-${GREEN}(${RESET}O${GREEN})${PURPLE}utput ${GREEN}<${BLUE}dir${GREEN}>   ${RESET}Select the directory of the product export."
-printf "%s\n" "    ${PURPLE}--version          ${RESET}Display this software version ${GREEN}[${CYAN}Alone${GREEN}]${RESET}."
-printf "%s\n"
-printf "%s\n" "${RESET}Necessary options for making packages${GREEN}:"
-printf "%s\n" "    ${GREEN}<${RESET}Numbers${GREEN}>          ${RESET}Specifies the version of WineHQ for making the target."
-printf "%s\n"
+main0() {
+    case $1 in
+    c | -c | -clean | clean | --clean)
+    
+    
+    baseurl | --baseurl)
+    
+    
+    O | -O | Output | --Output)
+    
+    
+    --version)
+    
+    
+    -h* | --h* | *)
+        if  [ "$LANG" == "zh_CN.UTF-8" -o "$LANG" == "en_US.UTF-8" ]
+         then
+        help-$LANG
+         else help-en_US.UTF-8
+        fi
+    esac
+}
+
+help-en_US.UTF-8() {
+    printf "%s\n" "${RESET}ExaGear ED cache crector file builder ${BLUE}[exagear-obb]v1.0"
+    printf "%s\n" "${RESET}  Usage: $0 ${YELLOW}[${BOLD}options${RESET}${YELLOW}]"
+    printf "%s\n"
+    printf "%s\n" "${RESET}Optional options${GREEN}:"
+    printf "%s\n" "    ${PURPLE}--baseurl${GREEN} ${YELLOW}\"URL\"    ${RESET}Change rootfs download form default url to your ${GREEN}<${YELLOW}URL${GREEN}>${RESET}."
+    printf "%s\n" "    ${PURPLE}-${RESET}-${GREEN}(${RESET}c${GREEN})${PURPLE}lean          ${RESET}Clean all files with download ${GREEN}[${CYAN}Alone${GREEN}]${RESET}."
+    printf "%s\n" "    ${PURPLE}-${RESET}-${GREEN}(${RESET}h${GREEN})${PURPLE}elp           ${RESET}Display help documentation ${GREEN}[${CYAN}Alone${GREEN}]${RESET}."
+    printf "%s\n" "    ${PURPLE}-${RESET}-${GREEN}(${RESET}O${GREEN})${PURPLE}utput ${GREEN}<${BLUE}dir${GREEN}>   ${RESET}Select the directory of the product export."
+    printf "%s\n" "    ${PURPLE}--version          ${RESET}Display this software version ${GREEN}[${CYAN}Alone${GREEN}]${RESET}."
+    printf "%s\n"
+    printf "%s\n" "${RESET}Necessary options for making packages${GREEN}:"
+    printf "%s\n" "    ${GREEN}<${RESET}Numbers${GREEN}>          ${RESET}Specifies the version of WineHQ for making the target."
+    printf "%s\n"
 }
 set_env() {
+    #Base
 	basedir=$PWD/build
 	downloads=$basedir/packaging
 	tools=$basedir/tools
@@ -43,16 +64,17 @@ set_env() {
 	pkgdir=$PWD/pkg
 	pkgver=$release
 	rootdir=$PWD
-        TEMP_FILE=".build.sh"
-        RED=$(printf '\033[31m')
-        GREEN=$(printf '\033[32m')
-        YELLOW=$(printf '\033[33m')
+    TEMP_FILE=".build.sh"
+    #Colors
+    RED=$(printf '\033[31m')
+    GREEN=$(printf '\033[32m')
+    YELLOW=$(printf '\033[33m')
 	BLUE=$(printf '\033[34m')
-        PURPLE=$(printf '\033[35m')
-        CYAN=$(printf '\033[36m')
-        RESET=$(printf '\033[m')
-        BOLD=$(printf '\033[1m')
+    PURPLE=$(printf '\033[35m')
+    CYAN=$(printf '\033[36m')
+    RESET=$(printf '\033[m')
+    BOLD=$(printf '\033[1m')
+        
 }
 #Main
-set_env
-main
+main $@
