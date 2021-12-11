@@ -9,3 +9,8 @@ sudo chmod a+x ./build-obb
 ```sh
 ./build-obb <WineHQ version>
 ```
+# Archlinux
+You may be need to install the following dependencies:
+```sh
+sudo pacman -S tar bsdtar zip unzip wget
+```
