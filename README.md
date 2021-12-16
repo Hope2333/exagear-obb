@@ -10,6 +10,8 @@ sudo chmod a+x ./build-obb
 ```sh
 ./build-obb <WineHQ version>
 ```
+*The version number format is similar to "6.23"; "7.0~rc1".*
+
 # Archlinux
 You may be need to install the following dependencies:
 ```sh
