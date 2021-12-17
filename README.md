@@ -3,7 +3,7 @@ A script is used to quickly make exagear ed data files(main.\*.com.eltechs.ed.ob
 The base package(rootfs) will be downloaded automatically when you run the production.
 ## First
 ```sh
-git clone git@github.com:Hope2333/exagear-obb.git
+git clone https://github.com/Hope2333/exagear-obb.git
 cd exagear-obb
 ```
 ## Add permissions
