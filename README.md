@@ -15,5 +15,5 @@ sudo chmod a+x ./build-obb
 # Archlinux
 You may be need to install the following dependencies:
 ```sh
-sudo pacman -S tar bsdtar zip unzip wget
+sudo pacman -S tar libarchive zip unzip wget
 ```
