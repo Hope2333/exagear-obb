@@ -21,10 +21,20 @@ download ()
     #rm -rf $1
     case $2 in
         *.deb)
-            bsdtar -xf $downloads/$(basename $2) 
-            cd $pkgdir
-            bsdtar -xf $basedir/$1/data.tar.xz
-            cd $basedir/$1/ ;;
+            test -e /usr/bin/dpkg && packdeb=dpkg || true
+            test -e /usr/bin/bsdtar && packdeb=bsdtar || true
+            test -e /data/data/com.termux/files/usr/bin/dpkg && packdeb=dpkg tmux=true || true
+            case $packdeb in
+                dpkg)
+                    dpkg --extract $downloads/$(basename $2) $pkgdir ;;
+                bsdtar)
+                    bsdtar -xf $downloads/$(basename $2)
+                    cd $pkgdir
+                    bsdtar -xf $basedir/$1/data.tar.xz
+                    cd $basedir/$1/ ;;
+                *) printf "Error4!" ;;
+            esac
+            ;;
         *.zip)
             unzip -q $downloads/$(basename $2) || true ;;
         *)
