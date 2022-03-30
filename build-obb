@@ -1,19 +1,120 @@
-#!/bin/bash
+#!/bin/env bash
 
-set -xe
-
+# 设置匹配基础包的版本
+osch=ubuntu
 channel=bionic
+br=devel
+#release=$1
 
-basedir=$PWD/build
+############################# 未落实mod_add
+# 希望打包的格式
+pkgmod=0
+## 独立的打包方式
+# 0 base: 仅一个基础rootfs
+# o opt: 分离opt和主基础包（不包括wine） 
+#
+opt=
+
+## 系列: 数字加法叠加*仅识别数字
+# 1 tfm: 分离rootfs基础包和tfm
+# 2 execwp: 容器壁纸补丁
+# 4 guest: 分离rootfs主包和wine容器客包
+tfm=
+execwp=
+guest=
+
+
+#############################
+# 基础包来源
+basepkg="https://github.com/Hope2333/exagear-obb/releases/download/0.1.0alpha1/base-all.obb"
+# 基础包可以是来自本地（制作完成后放入相对该脚步的/build/packaging，重命名为base.zip
+#
+#
+# 幽零来源（现用包和历史包）
+# 0.1.0 
+#https://github.com/Hope2333/exagear-obb/releases/download/0.1.0/base.zip
+# 愚人节特供版(0.1.0)
+#https://github.com/Hope2333/exagear-obb/releases/download/0.1.0alpha1/base-all.obb
+# 0.0.1026
+#https://github.com/Hope2333/exagear-obb/releases/download/0.0.1026/base-all.zip
+#download base base-minimal1.zip URL
+    
+    
+
+ver="0.1.0-alpha"
+#############################
+# 以下不希望被改变，改了容易出问题
+sourcedir=$(cd $(dirname $0) && pwd)
+basedir=$sourcedir/build
 downloads=$basedir/packaging
 tools=$basedir/tools
-sourcedir=$(cd $(dirname $0) && pwd)
-release=$1
-pkgdir=$PWD/pkg
-pkgver=$release
+pkgdir=$sourcedir/pkg
+pkgver=$1
 rootdir=$PWD
 
+# Start
+
 #
+
+main () {
+      set_env
+  if   [ "$#" == "0" ]
+   then
+    printf "%s\n" "${RED}Error${BLUE}: ${RESET}No additional options!"
+    help
+  else
+    case $1 in
+    c | -c | -clean | clean | --clean)
+        base.clean
+    ;;
+    *.*)
+        set -xe
+        #pass
+        clean
+        config_mainzip
+        test -d wine-${br}-i386 || config_wine-${br}
+        test -d wine-${br} || config_wine
+        test -d winehq-${br} || config_winehq
+        pkgmake
+    ;;
+    --version | -v )printf "%s\n" "${BLUE}exagear-obb${GREEN}${ver}"&&printf "%s\n"
+    ;;
+    -h* | --h* | *)
+         help
+    ;;
+    esac
+   fi
+}
+
+set_env() {
+    #Base
+        sourcedir=$(cd $(dirname $0) && pwd)
+        basedir=$sourcedir/build
+        downloads=$basedir/packaging
+        tools=$basedir/tools
+        #release=$1
+        pkgdir=$sourcedir/pkg
+        pkgver=$1
+        rootdir=$PWD
+        TEMP_FILE=".build.sh"
+    #Colors
+        RED=$(printf '\033[31m')
+        GREEN=$(printf '\033[32m')
+        YELLOW=$(printf '\033[33m')
+        BLUE=$(printf '\033[34m')
+        PURPLE=$(printf '\033[35m')
+        CYAN=$(printf '\033[36m')
+        RESET=$(printf '\033[m')
+        BOLD=$(printf '\033[1m')
+    #Launguage
+       case $LANG in
+        zh_CN*) conf_printf-zh_CN;;
+        en_US*) conf_printf-en_US;;
+        *)      conf_printf-en_US;;
+       esac
+        
+}
+
 download ()
 {
     test -d $downloads || mkdir -p $downloads
@@ -32,7 +133,7 @@ download ()
                     cd $pkgdir
                     bsdtar -xf $basedir/$1/data.tar.xz
                     cd $basedir/$1/ ;;
-                *) printf "Error4!" ;;
+                *) printf "Error4!"&&exit ;;
             esac
             ;;
         *.zip)
@@ -57,8 +158,8 @@ clean ()
 {
     mkdir -p $downloads
     mv $downloads $rootdir/downloads
-    test -z "$release" || rm -rf $basedir
-    test -z "$release" || rm -rf $pkgdir
+    test -z "$pkgver" || rm -rf $basedir
+    test -z "$pkgver" || rm -rf $pkgdir
     test -d $basedir || mkdir $basedir
     test -d $pkgdir || mkdir $pkgdir
     cd $basedir
@@ -75,54 +176,51 @@ config_mainzip ()
 {
     mkdir -p base
     cd base
-    download base base-all.zip https://github.com/Hope2333/exagear-obb/releases/download/0.0.1026/base-all.zip
-    #download base base-all.zip https://hub.fastgit.org/Hope2333/exagear-obb/releases/download/0.0.1026/base-all.zip
-    #download base base-minimal1.zip URL
+    download base base.zip $basepkg
     mv ./* $pkgdir
     cd ..
 }
 
-config_wine-devel-i386 ()
+mod_add ()
 {
-    mkdir -p wine-devel-i386
-    cd wine-devel-i386
-    download wine-devel-i386 wine-devel-i386-$pkgver.deb https://dl.winehq.org/wine-builds/ubuntu/dists/${channel}/main/binary-i386/wine-devel-i386_${pkgver}~${channel}-1_i386.deb
+    0
+}
+
+config_wine-i386 ()
+{
+    mkdir -p wine-${br}-i386
+    cd wine-${br}-i386
+    download wine-${br}-i386 wine-${br}-i386-$pkgver.deb https://dl.winehq.org/wine-builds/${osch}/dists/${channel}/main/binary-i386/wine-${br}-i386_${pkgver}~${channel}-1_i386.deb
     cd ..
 }
 
-config_wine-devel ()
+config_wine ()
 {
-    mkdir -p wine-devel
-    cd wine-devel
-    download wine-devel wine-devel-$pkgver.deb https://dl.winehq.org/wine-builds/ubuntu/dists/${channel}/main/binary-i386/wine-devel_${pkgver}~${channel}-1_i386.deb
+    mkdir -p wine-${br}
+    cd wine-${br}
+    download wine-${br} wine-${br}-$pkgver.deb https://dl.winehq.org/wine-builds/${osch}/dists/${channel}/main/binary-i386/wine-${br}_${pkgver}~${channel}-1_i386.deb
     cd ..
 }
 
-config_winehq-devel ()
+config_winehq ()
 {
-    mkdir -p winehq-devel
-    cd winehq-devel
-    download winehq-devel winehq-devel-$pkgver.deb https://dl.winehq.org/wine-builds/ubuntu/dists/${channel}/main/binary-i386/winehq-devel_${pkgver}~${channel}-1_i386.deb
+    mkdir -p winehq-${br}
+    cd winehq-${br}
+    download winehq-${br} winehq-${br}-$pkgver.deb https://dl.winehq.org/wine-builds/${osch}/dists/${channel}/main/binary-i386/winehq-${br}_${pkgver}~${channel}-1_i386.deb
     cd ..
 }
 
-install-all ()
+pkgmake ()
 {
     cd $pkgdir
-    #echo -e "'$pass\n"|sudo zip --symlink -rq9 ../wine-dev-$release.zip .
-    sudo zip --symlink -rq9 ../wine-dev-$release.zip .
+    #echo -e "'$pass\n"|sudo zip --symlink -rq9 ../wine-dev-$pkgver.zip .
+    sudo zip --symlink -rq9 ../wine-$br-$pkgver.obb .
+    cp -af ../wine-$br-$pkgver.obb -p libres.so
     clean
     cd ..
     #echo -e "$pass\n"|sudo rm -rf $pkgdir
     rm -rf $pkgdir
 }
 
-#Main
-
-#pass
-clean
-config_mainzip
-test -d wine-devel-i386 || config_wine-devel-i386
-test -d wine-devel || config_wine-devel
-test -d winehq-devel || config_winehq-devel
-install-all
+# All
+main $@
