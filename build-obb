@@ -57,7 +57,7 @@ rootdir=$PWD
 #
 
 main () {
-      set_env
+      set_env $@
   if   [ "$#" == "0" ]
    then
     printf "%s\n" "${RED}Error${BLUE}: ${RESET}No additional options!"
