@@ -72,7 +72,7 @@ main () {
         #pass
         clean
         config_mainzip
-        test -d wine-${br}-i386 || config_wine-${br}
+        test -d wine-${br}-i386 || config_wine-i386
         test -d wine-${br} || config_wine
         test -d winehq-${br} || config_winehq
         pkgmake
