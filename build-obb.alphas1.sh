@@ -1,11 +1,9 @@
 #!/bin/env bash
 # snap.version=202203211246
-
-channel=bionic
-osch=ubuntu
-br=devel
 #release=$1
-
+channel=
+osch=
+br=
 ############################# 未落实mod_add
 # 希望打包的格式
 pkgmod=0
@@ -48,28 +46,22 @@ ver="tree-s1 0.1.0-alpha"
 
 main () {
       set_env $@
-  if   [ "$#" == "0" ]
+  if   [ "$1" == "0" ]
    then
-    printf "%s\n" "${RED}Error${BLUE}: ${RESET}No additional options!"
+    printf "%s\n" ${er4}
     help
   else
     case $@ in
     c | -c | -clean | clean | --clean)
         clean-all
     ;;
-    baseurl | --baseurl)
-        
-    ;;
-    O | -O | Output | --Output)
-        
-    ;;
     *.*)
         #pass
         clean
         config_mainzip
-        test -d wine-$br-i386 || config_wine-$br-i386
-        test -d wine-$br || config_wine-$br
-        test -d winehq-$br || config_winehq-$br
+        test -d wine-$br-i386 || config_wine-i386
+        test -d wine-$br || config_wine
+        test -d winehq-$br || config_winehq
         pkgmake
     ;;
     *version )printf "%s\n" "${BLUE}exagear-obb${GREEN}${ver}"&&printf "%s\n"
@@ -107,9 +99,21 @@ set_env() {
         en_US*) conf_printf-en_US;;
         *)      conf_printf-en_US;;
        esac
-        
-}
+    #Things
+        brb=$br
+        if [ -n "$channel" ];then true;else channel=bionic;fi
+        if [ -n "$osch" ];then true;else osch=ubuntu;fi
+        if [ -n "$2" ];then br1=true;else true;fi
+        if [ -n "$brb" ];then br2=true;else true;fi
+        if [ -n "$branch" ];then br3=true;else true;fi
+        bra=${2}${br}${branch};brg=${#bra}
+        if [ -n "$br1""$br2""$br3" ];then brn=true;else br=devel;fi
+        if [ "$brg" -gt 4 ];then brn=true;else br=devel;fi
+        if [ -n "$brn" ];then br=${2}${br}${branch} ;else true;fi
+        if [ -n "$pkgmod" ];then true;else pkgmod=0;fi
 
+}
+test
 download ()
 {
     test -d $downloads || mkdir -p $downloads
@@ -128,7 +132,7 @@ download ()
                     cd $pkgdir
                     bsdtar -xf $basedir/$1/data.tar.xz
                     cd $basedir/$1/ ;;
-                *) printf "Error4!"&&exit ;;
+                *) printf "Error2!"&&exit ;;
             esac
             ;;
         *.zip)
@@ -148,7 +152,7 @@ help() {
 
 help-en_US() {
     printf "%s\n" "${RESET}ExaGear ED cache crector file builder ${BLUE}[exagear-obb]v1.0"
-    printf "%s\n" "${RESET}  Usage: $0 ${YELLOW}[${BOLD}options${RESET}${YELLOW}]"
+    printf "%s\n" "${RESET}  Usage: $0 ${YELLOW}[${BOLD}WineHQ version${RESET}${YELLOW}] ${YELLOW}(${BOLD}WineHQ branch${RESET}${YELLOW})"
     printf "%s\n"
     printf "%s\n" "${RESET}Optional options${GREEN}:"
     printf "%s\n" "    ${PURPLE}--baseurl${GREEN} ${YELLOW}\"URL\"    ${RESET}Change rootfs download form default url to your ${GREEN}<${YELLOW}URL${GREEN}>${RESET}."
@@ -162,9 +166,25 @@ help-en_US() {
     printf "%s\n"
 }
 
+conf_printf-en_US() {
+    #Error
+    er4="${RED}Error4${BLUE}: ${RESET}No additional options!"
+
+    #Main
+
+}
+
+conf_printf-zh_CN() {
+    #Error
+    er4="${RED}错误4${BLUE}: ${RESET}没有输入任何选项!"
+
+    #Main
+
+}
+
 help-zh_CN() {
     printf "%s\n" "${RESET}ExaGear ED 数据包制作工具 ${BLUE}[exagear-obb]v1.0"
-    printf "%s\n" "${RESET}   用法: $0 ${YELLOW}[${BOLD}选项${RESET}${YELLOW}]"
+    printf "%s\n" "${RESET}   用法: $0 ${YELLOW}[${BOLD}WineHQ version${RESET}${YELLOW}] ${YELLOW}(${BOLD}WineHQ branch${RESET}${YELLOW})"
     printf "%s\n"
     printf "%s\n" "${RESET}可选的${GREEN}:"
     printf "%s\n" "    ${PURPLE}--baseurl${GREEN} ${YELLOW}\"网址\"    ${RESET}更改基础包的来源地址 ${GREEN}<${YELLOW}网址${GREEN}>${RESET}。"
@@ -223,27 +243,27 @@ mod_add ()
     0
 }
 
-config_wine-$br-i386 ()
+config_wine-i386 ()
 {
     mkdir -p wine-$br-i386
     cd wine-$br-i386
-    download wine-$br-i386 wine-$br-i386-$pkgver.deb https://dl.winehq.org/wine-builds/$osch/dists/${channel}/main/binary-i386/wine-$br-i386_${pkgver}~${channel}-1_i386.deb
+    download wine-$br-i386 wine-$br-i386-$pkgver.deb https://dl.winehq.org/wine-builds/$osch/dists/${channel}/main/binary-i386/wine-$br-i386_${pkgver}~${channel}${pkgrel}_i386.deb
     cd ..
 }
 
-config_wine-$br ()
+config_wine ()
 {
     mkdir -p wine-$br
     cd wine-$br
-    download wine-$br wine-$br-$pkgver.deb https://dl.winehq.org/wine-builds/$osch/dists/${channel}/main/binary-i386/wine-$br_${pkgver}~${channel}-1_i386.deb
+    download wine-$br wine-$br-$pkgver.deb https://dl.winehq.org/wine-builds/$osch/dists/${channel}/main/binary-i386/wine-$br_${pkgver}~${channel}${pkgrel}_i386.deb
     cd ..
 }
 
-config_winehq-$br ()
+config_winehq ()
 {
     mkdir -p winehq-$br
     cd winehq-$br
-    download winehq-$br winehq-$br-$pkgver.deb https://dl.winehq.org/wine-builds/$osch/dists/${channel}/main/binary-i386/winehq-$br_${pkgver}~${channel}-1_i386.deb
+    download winehq-$br winehq-$br-$pkgver.deb https://dl.winehq.org/wine-builds/$osch/dists/${channel}/main/binary-i386/winehq-$br_${pkgver}~${channel}${pkgrel}_i386.deb
     cd ..
 }
 
