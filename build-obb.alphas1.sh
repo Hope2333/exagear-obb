@@ -84,6 +84,7 @@ set_env() {
         pkgver=$1
         rootdir=$PWD
         TEMP_FILE=".build.sh"
+        pkgrel
     #Colors
         RED=$(printf '\033[31m')
         GREEN=$(printf '\033[32m')
@@ -113,7 +114,11 @@ set_env() {
         if [ -n "$pkgmod" ];then true;else pkgmod=0;fi
 
 }
-test
+pkgrel ()
+{
+    pkgrel=-1
+}
+
 download ()
 {
     test -d $downloads || mkdir -p $downloads
@@ -240,7 +245,17 @@ config_mainzip ()
 
 mod_add ()
 {
-    0
+    case $pkgmod in
+        0) ;;
+        1) ;;
+        2) ;;
+        3) ;;
+        4) ;;
+        5) ;;
+        6) ;;
+        7) ;;
+        o*|O*) ;;
+    esac
 }
 
 config_wine-i386 ()
