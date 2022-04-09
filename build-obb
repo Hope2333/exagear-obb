@@ -26,13 +26,13 @@ guest=
 
 #############################
 # 基础包来源
-basepkg="https://github.com/Hope2333/exagear-obb/releases/download/0.1.0alpha1/base-all.obb"
+basepkg="https://github.com/Hope2333/exagear-obb/releases/download/0.1.0/base.obb"
 # 基础包可以是来自本地（制作完成后放入相对该脚步的/build/packaging，重命名为base.zip
 #
 #
 # 幽零来源（现用包和历史包）
 # 0.1.0 
-#https://github.com/Hope2333/exagear-obb/releases/download/0.1.0/base.zip
+#https://github.com/Hope2333/exagear-obb/releases/download/0.1.0/base.obb
 # 愚人节特供版(0.1.0)
 #https://github.com/Hope2333/exagear-obb/releases/download/0.1.0alpha1/base-all.obb
 # 0.0.1026
