@@ -1,0 +1,268 @@
+#!/bin/env bash
+# 脚本设计者/创作者：（幽零小喵）hope2333
+# 使用脚本前必须与作者取得联系，禁止滥用，其他遵循GPL3协议
+# 与脚本作者联系方式：
+#       QQ : 3238998313
+#   E-mail : 3238998313@qq.com
+#            hope2333me@gmail.com
+
+# 设置匹配基础包的版本
+osch=ubuntu channel=bionic
+#osch=ubuntu channel=xenial
+#osch=debian channel=bullseye
+br=devel
+#release=$1
+
+#############################
+# 目标系统软件员源
+ossource="https://dl.winehq.org/wine-builds/${osch}/"
+# 官方源
+# ossource="https://dl.winehq.org/wine-builds/${osch}/"
+###
+# 下载工具
+#dlmg=curl
+
+############################# 未落实mod_add
+# 希望打包的格式
+pkgmod=0
+## 独立的打包方式
+# 0 base: 仅一个基础rootfs
+# o opt: 分离opt和主基础包（不包括wine） 
+#
+opt=
+
+## 系列: 数字加法叠加*仅识别数字
+# 1 tfm: 分离rootfs基础包和tfm
+# 2 execwp: 容器壁纸补丁
+# 4 guest: 分离rootfs主包和wine容器客包
+tfm=
+execwp=
+guest=
+
+
+#############################
+# 基础包来源
+basepkg="https://github.com/Hope2333/exagear-obb/releases/download/0.1.0/base.obb"
+# 基础包可以是来自本地（制作完成后放入相对该脚步的/build/packaging，重命名为base.zip
+#
+#
+# 幽零来源（现用包和历史包）
+# 0.1.0 
+#https://github.com/Hope2333/exagear-obb/releases/download/0.1.0/base.obb
+# 愚人节特供版(0.1.0)
+#https://github.com/Hope2333/exagear-obb/releases/download/0.1.0alpha1/base-all.obb
+# 0.0.1026
+#https://github.com/Hope2333/exagear-obb/releases/download/0.0.1026/base-all.zip
+#download base base-minimal1.zip URL
+    
+    
+
+ver="0.1.0-alpha"
+#############################
+# 以下不希望被改变，改了容易出问题
+sourcedir=$(cd $(dirname $0) && pwd)
+basedir=$sourcedir/build
+downloads=$basedir/packaging
+tools=$basedir/tools
+pkgdir=$sourcedir/pkg
+pkgver=$1
+rootdir=$PWD
+ww=dbg
+
+# Start
+
+#
+
+main () {
+      set_env $@
+  if   [ "$#" == "0" ]
+   then
+    printf "%s\n" "${RED}Error${BLUE}: ${RESET}No additional options!"
+    help
+  else
+    case $1 in
+    c | -c | -clean | clean | --clean)
+        base.clean
+    ;;
+    *.*)
+        set -xe
+        #pass
+        clean
+        config_mainzip
+        test -d wine-${br}-i386 || config_wine-i386
+        test -d wine-${br} || config_wine
+        test -d winehq-${br} || config_winehq
+        pkgmake
+    ;;
+    --version | -v )printf "%s\n" "${BLUE}exagear-obb${GREEN}${ver}"&&printf "%s\n"
+    ;;
+    -h* | --h* | *)
+         help
+    ;;
+    esac
+   fi
+}
+
+set_env() {
+    #Base
+        sourcedir=$(cd $(dirname $0) && pwd)
+        basedir=$sourcedir/build
+        downloads=$basedir/packaging
+        tools=$basedir/tools
+        #release=$1
+        pkgdir=$sourcedir/pkg
+        pkgver=$1
+        rootdir=$PWD
+        TEMP_FILE=".build.sh"
+    #Colors
+        RED=$(printf '\033[31m')
+        GREEN=$(printf '\033[32m')
+        YELLOW=$(printf '\033[33m')
+        BLUE=$(printf '\033[34m')
+        PURPLE=$(printf '\033[35m')
+        CYAN=$(printf '\033[36m')
+        RESET=$(printf '\033[m')
+        BOLD=$(printf '\033[1m')
+    #Launguage
+       case $LANG in
+        zh_CN*) conf_printf-zh_CN;;
+        en_US*) conf_printf-en_US;;
+        *)      conf_printf-en_US;;
+       esac
+        
+}
+conf_printf-zh_CN() {
+   e4_t=""
+}
+download ()
+{
+    test -d $downloads || mkdir -p $downloads
+    test -f $downloads/$(basename $2) || wget -O $downloads/$(basename $2) ${3:-$2} || error dler $1
+    #rm -rf $1
+    case $2 in
+        *.deb)
+            test -e /usr/bin/dpkg && packdeb=dpkg || true
+            test -e /usr/bin/bsdtar && packdeb=bsdtar || true
+            test -e /data/data/com.termux/files/usr/bin/dpkg && packdeb=dpkg tmux=true || true
+            case $packdeb in
+                dpkg)
+                    dpkg --extract $downloads/$(basename $2) $pkgdir ;;
+                bsdtar)
+                    bsdtar -xf $downloads/$(basename $2)
+                    cd $pkgdir
+                    bsdtar -xf $basedir/$1/data.tar.xz
+                    cd $basedir/$1/ ;;
+                *) printf "Error4!"&&exit ;;
+            esac
+            ;;
+        *.zip)
+            unzip -q $downloads/$(basename $2) || true ;;
+        *)
+            tar xf $downloads/$(basename $2) ;;
+    esac
+}
+
+pass ()
+{
+    set +x
+    echo " "
+    read -s -p "Enter your Password:" pass
+    echo " "
+    echo "Starting..."
+    echo " "
+    set $ww
+}
+
+error ()
+{
+    case $1 in
+     dler)
+      case $2 in
+       base)
+        err 30;;
+        rm -f $downloads/wine-${br}-i386-${channel}-$pkgver.deb
+       wine-${br}-i386)
+        err 31 $2;;
+       wine-${br} | winehq-${br})
+        err 32 $2;;
+      esac
+    ;;
+    *) err 4
+    esac
+
+ err(){
+  
+ }
+
+}
+
+clean ()
+{
+    mkdir -p $downloads
+    mv $downloads $rootdir/downloads
+    test -z "$pkgver" || rm -rf $basedir
+    test -z "$pkgver" || rm -rf $pkgdir
+    test -d $basedir || mkdir $basedir
+    test -d $pkgdir || mkdir $pkgdir
+    cd $basedir
+    mv $rootdir/downloads $downloads
+}
+
+clean-all ()
+{
+    rm -rf $basedir
+    rm -rf $pkgdir
+}
+
+config_mainzip ()
+{
+    mkdir -p base
+    cd base
+    download base base.zip $basepkg
+    mv ./* $pkgdir
+    cd ..
+}
+
+mod_add ()
+{
+    0
+}
+
+config_wine-i386 ()
+{
+    mkdir -p wine-${br}-i386
+    cd wine-${br}-i386
+    download wine-${br}-i386 wine-${br}-i386-${channel}-$pkgver.deb ${ossource}/dists/${channel}/main/binary-i386/wine-${br}-i386_${pkgver}~${channel}-1_i386.deb
+    cd ..
+}
+
+config_wine ()
+{
+    mkdir -p wine-${br}
+    cd wine-${br}
+    download wine-${br} wine-${br}-${channel}-$pkgver.deb ${ossource}/dists/${channel}/main/binary-i386/wine-${br}_${pkgver}~${channel}-1_i386.deb
+    cd ..
+}
+
+config_winehq ()
+{
+    mkdir -p winehq-${br}
+    cd winehq-${br}
+    download winehq-${br} winehq-${br}-${channel}-$pkgver.deb ${ossource}/dists/${channel}/main/binary-i386/winehq-${br}_${pkgver}~${channel}-1_i386.deb
+    cd ..
+}
+
+pkgmake ()
+{
+    cd $pkgdir
+    #echo -e "'$pass\n"|sudo zip --symlink -rq9 ../wine-dev-$pkgver.zip .
+    sudo zip --symlink -rq9 ../wine-$br-$pkgver.obb .
+    cp -af ../wine-$br-$pkgver.obb -p libres.so
+    clean
+    cd ..
+    #echo -e "$pass\n"|sudo rm -rf $pkgdir
+    rm -rf $pkgdir
+}
+
+# All
+main $@
