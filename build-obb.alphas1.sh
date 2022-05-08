@@ -1,9 +1,31 @@
 #!/bin/env bash
-# snap.version=202203211246
+# snap.version=202205081246
+# 脚本设计者/创作者：（幽零小喵）hope2333
+# 使用脚本前必须与作者取得联系，禁止滥用，其他遵循GPL3协议
+# 与脚本作者联系方式：
+#       QQ : 3238998313
+#   E-mail : 3238998313@qq.com
+#            hope2333me@gmail.com
+
+# 设置匹配基础包的版本
+#osch=ubuntu channel=bionic
+#osch=ubuntu channel=xenial
+#osch=debian channel=bullseye
+#br=devel
 #release=$1
 channel=
 osch=
 br=
+
+#############################
+# 目标系统软件员源
+ossource="https://dl.winehq.org/wine-builds/${osch}/"
+# 官方源
+# ossource="https://dl.winehq.org/wine-builds/${osch}/"
+###
+# 下载工具
+#dlmg=curl
+
 ############################# 未落实mod_add
 # 希望打包的格式
 pkgmod=0
@@ -23,13 +45,13 @@ guest=
 
 #############################
 # 基础包来源
-pkgurl="https://github.com/Hope2333/exagear-obb/releases/download/0.1.0alpha1/base-all.obb"
+pkgurl="https://github.com/Hope2333/exagear-obb/releases/download/0.1.0/base.obb"
 # 基础包可以是来自本地（制作完成后放入相对该脚步本的/build/packaging，重命名为base.zip
 #
 #
 # 幽零来源（现用包和历史包）
 # 0.1.0 
-#https://github.com/Hope2333/exagear-obb/releases/download/0.1.0/base.zip
+#https://github.com/Hope2333/exagear-obb/releases/download/0.1.0/base.obb
 # 愚人节特供版(0.1.0)
 #https://github.com/Hope2333/exagear-obb/releases/download/0.1.0alpha1/base-all.obb
 # 0.0.1026
@@ -39,19 +61,23 @@ pkgurl="https://github.com/Hope2333/exagear-obb/releases/download/0.1.0alpha1/ba
     
 
 #
-ver="tree-s1 0.1.0-alpha"
+ver="0.1.0-alpha (tree-s1)"
 #############################
-# 以下不希望被改变，改了容易运行出问题
+# 以下不希望被改变，改了运行容易出问题
+set="-xe"
 # 主程序部分
+
+
+
 
 main () {
       set_env $@
-  if   [ "$1" == "0" ]
+  if   [ "$#" == "0" ]
    then
-    printf "%s\n" ${er4}
+    error 3
     help
   else
-    case $@ in
+    case $1 in
     c | -c | -clean | clean | --clean)
         clean-all
     ;;
@@ -83,7 +109,7 @@ set_env() {
         pkgdir=$sourcedir/pkg
         pkgver=$1
         rootdir=$PWD
-        TEMP_FILE=".build.sh"
+        TEMP_FILE=".building.sh"
         pkgrel
     #Colors
         RED=$(printf '\033[31m')
@@ -114,6 +140,7 @@ set_env() {
         if [ -n "$pkgmod" ];then true;else pkgmod=0;fi
 
 }
+
 pkgrel ()
 {
     pkgrel=-1
@@ -122,7 +149,7 @@ pkgrel ()
 download ()
 {
     test -d $downloads || mkdir -p $downloads
-    test -f $downloads/$(basename $2) || wget -O $downloads/$(basename $2) ${3:-$2}
+    test -f $downloads/$(basename $2) || wget -O $downloads/$(basename $2) ${3:-$2} || error dler $1
     #rm -rf $1
     case $2 in
         *.deb)
@@ -137,7 +164,7 @@ download ()
                     cd $pkgdir
                     bsdtar -xf $basedir/$1/data.tar.xz
                     cd $basedir/$1/ ;;
-                *) printf "Error2!"&&exit ;;
+                *) error 2;;
             esac
             ;;
         *.zip)
@@ -156,7 +183,7 @@ help() {
 }
 
 help-en_US() {
-    printf "%s\n" "${RESET}ExaGear ED cache crector file builder ${BLUE}[exagear-obb]v1.0"
+    printf "%s\n" "${RESET}ExaGear ED cache crector file builder ${BLUE}[exagear-obb]v${ver}"
     printf "%s\n" "${RESET}  Usage: $0 ${YELLOW}[${BOLD}WineHQ version${RESET}${YELLOW}] ${YELLOW}(${BOLD}WineHQ branch${RESET}${YELLOW})"
     printf "%s\n"
     printf "%s\n" "${RESET}Optional options${GREEN}:"
@@ -171,24 +198,8 @@ help-en_US() {
     printf "%s\n"
 }
 
-conf_printf-en_US() {
-    #Error
-    er4="${RED}Error4${BLUE}: ${RESET}No additional options!"
-
-    #Main
-
-}
-
-conf_printf-zh_CN() {
-    #Error
-    er4="${RED}错误4${BLUE}: ${RESET}没有输入任何选项!"
-
-    #Main
-
-}
-
 help-zh_CN() {
-    printf "%s\n" "${RESET}ExaGear ED 数据包制作工具 ${BLUE}[exagear-obb]v1.0"
+    printf "%s\n" "${RESET}ExaGear ED 数据包制作工具 ${BLUE}[exagear-obb]v${ver}"
     printf "%s\n" "${RESET}   用法: $0 ${YELLOW}[${BOLD}WineHQ version${RESET}${YELLOW}] ${YELLOW}(${BOLD}WineHQ branch${RESET}${YELLOW})"
     printf "%s\n"
     printf "%s\n" "${RESET}可选的${GREEN}:"
@@ -203,6 +214,23 @@ help-zh_CN() {
     printf "%s\n"
 }
 
+conf_printf-en_US() {
+    #Error
+    e3_t="${RESET}${RED}Error3${BLUE}: ${RESET}No additional options!"
+    e3="Print simplified help documentation"
+    #Main
+
+}
+
+conf_printf-zh_CN() {
+    #Error
+    e3_t="${RESET}${RED}错误3${BLUE}: ${RESET}没有输入任何选项!"
+    e3="开始列出简化帮助内容"
+    e4_t="${RESET}${RED}错误4${BLUE}: ${RESET}没有输入任何选项!"
+    #Main
+
+}
+
 pass ()
 {
     set +x
@@ -211,8 +239,37 @@ pass ()
     echo " "
     echo "Starting..."
     echo " "
-    set -xe
+    set $set
 }
+
+error ()
+{
+    set +x
+    case $1 in
+     dler)
+      case $2 in
+       base)
+        err 30
+        ;;
+       wine-${br}-i386)
+        rm -f $downloads/wine-${br}-i386-${channel}-$pkgver.deb || true
+        err 31 $2;;
+       wine-${br} | winehq-${br})
+        err 32 $2;;
+      esac
+    ;;
+    *) err 4
+    esac
+}
+
+ err(){
+  e_t=$"$(echo "$"e${1}_t)" e="$(echo '$'e${1})"
+  printf "%s\n"
+  printf "%s\n" "   ${e_t}"
+  printf "%s\n" "${BOLD}${YELLOW}   --------------------------------------------------"
+  printf "%s\n" "   ${e}"
+
+ }
 
 clean ()
 {
@@ -286,7 +343,7 @@ pkgmake ()
 {
     cd $pkgdir
     #echo -e "'$pass\n"|sudo zip --symlink -rq9 ../wine-dev-$pkgver.zip .
-    sudo zip --symlink -rq9 ../wine-dev-$pkgver.zip .
+    sudo zip --symlink -rq9 ../wine-dev-$pkgver.obb .
     clean
     cd ..
     #echo -e "$pass\n"|sudo rm -rf $pkgdir
