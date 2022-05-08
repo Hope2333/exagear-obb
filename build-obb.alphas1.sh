@@ -143,7 +143,8 @@ set_env() {
 
 pkgrel ()
 {
-    pkgrel=-1
+    if [ -n "$pkgrel" ];then _pkgrel=-$pkgrel;else _pkgrel=-1;fi
+
 }
 
 download ()
@@ -319,7 +320,7 @@ config_wine-i386 ()
 {
     mkdir -p wine-$br-i386
     cd wine-$br-i386
-    download wine-$br-i386 wine-$br-i386-$pkgver.deb https://dl.winehq.org/wine-builds/$osch/dists/${channel}/main/binary-i386/wine-$br-i386_${pkgver}~${channel}${pkgrel}_i386.deb
+    download wine-$br-i386 wine-$br-$channel-i386-$pkgver.deb https://dl.winehq.org/wine-builds/$osch/dists/${channel}/main/binary-i386/wine-$br-i386_${pkgver}~${channel}${_pkgrel}_i386.deb
     cd ..
 }
 
@@ -327,7 +328,7 @@ config_wine ()
 {
     mkdir -p wine-$br
     cd wine-$br
-    download wine-$br wine-$br-$pkgver.deb https://dl.winehq.org/wine-builds/$osch/dists/${channel}/main/binary-i386/wine-$br_${pkgver}~${channel}${pkgrel}_i386.deb
+    download wine-$br wine-$br-$channel-$pkgver.deb https://dl.winehq.org/wine-builds/$osch/dists/${channel}/main/binary-i386/wine-$br_${pkgver}~${channel}${_pkgrel}_i386.deb
     cd ..
 }
 
@@ -335,7 +336,7 @@ config_winehq ()
 {
     mkdir -p winehq-$br
     cd winehq-$br
-    download winehq-$br winehq-$br-$pkgver.deb https://dl.winehq.org/wine-builds/$osch/dists/${channel}/main/binary-i386/winehq-$br_${pkgver}~${channel}${pkgrel}_i386.deb
+    download winehq-$br winehq-$br-$channel-$pkgver.deb https://dl.winehq.org/wine-builds/$osch/dists/${channel}/main/binary-i386/winehq-$br_${pkgver}~${channel}${_pkgrel}_i386.deb
     cd ..
 }
 
