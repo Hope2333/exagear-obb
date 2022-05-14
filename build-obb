@@ -22,6 +22,12 @@ ossource="https://dl.winehq.org/wine-builds/${osch}/"
 # 下载工具
 #dlmg=curl
 
+# 设置匹配基础包的版本
+osch=ubuntu
+channel=bionic
+br=devel
+#release=$1
+
 ############################# 未落实mod_add
 # 希望打包的格式
 pkgmod=0
@@ -55,8 +61,6 @@ guest=
 #https://github.com/Hope2333/exagear-obb/releases/download/0.0.1026/base-all.zip
 #download base base-minimal1.zip URL
     
-    
-
 ver="0.1.0"
 #############################
 # 以下不希望被改变，改了容易出问题
@@ -68,6 +72,8 @@ pkgdir=$sourcedir/pkg
 pkgver=$1
 rootdir=$PWD
 ww=dbg
+
+# Start
 
 # Start
 
@@ -131,9 +137,11 @@ set_env() {
        esac
         
 }
+
 conf_printf-zh_CN() {
    e4_t=""
 }
+
 download ()
 {
     test -d $downloads || mkdir -p $downloads
