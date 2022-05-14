@@ -40,19 +40,3 @@ sudo apt-get install zip unzip wget git
 ```sh
 sudo apt-get install tar libarchive zip unzip wget git
 ```
-
-## First
-```sh
-git clone https://github.com/Hope2333/exagear-obb.git
-cd exagear-obb
-```
-## Add permissions
-If the permissions are not enough, then add execution permissions to the file.
-```sh
-sudo chmod a+x ./build-obb
-```
-## Usage
-```sh
-./build-obb <WineHQ version>
-```
-*The version number format is similar to "6.23"; "7.0~rc1".*
