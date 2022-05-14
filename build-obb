@@ -42,7 +42,7 @@ guest=
 
 #############################
 # 基础包来源
-basepkg="https://github.com/Hope2333/exagear-obb/releases/download/0.1.0/base.obb"
+# basepkg="https://?/base.obb"
 # 基础包可以是来自本地（制作完成后放入相对该脚步的/build/packaging，重命名为base.zip
 #
 #
@@ -57,7 +57,7 @@ basepkg="https://github.com/Hope2333/exagear-obb/releases/download/0.1.0/base.ob
     
     
 
-ver="0.1.0-alpha"
+ver="0.1.0"
 #############################
 # 以下不希望被改变，改了容易出问题
 sourcedir=$(cd $(dirname $0) && pwd)
