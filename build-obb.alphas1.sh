@@ -13,15 +13,12 @@
 #osch=debian channel=bullseye
 #br=devel
 #release=$1
-channel=
-osch=
-br=
 
 #############################
 # 目标系统软件员源
-ossource="https://dl.winehq.org/wine-builds/${osch}/"
+ossource="https://dl.winehq.org/wine-builds/"
 # 官方源
-# ossource="https://dl.winehq.org/wine-builds/${osch}/"
+# ossource="https://dl.winehq.org/wine-builds/"
 ###
 # 下载工具
 #dlmg=curl
@@ -45,32 +42,29 @@ guest=
 
 #############################
 # 基础包来源
-pkgurl="https://github.com/Hope2333/exagear-obb/releases/download/0.1.0/base.obb"
-# 基础包可以是来自本地（制作完成后放入相对该脚步本的/build/packaging，重命名为base.zip
+# pkgurl="https://?/#file"
+# pkgurl="file:///data1/exagear-data/BRa4/v04/02/base-patched-minimal.azb"
+# 基础包可以是来自本地（制作完成后放入相对该脚步本的/build/packaging，重命名为base.dzp
 #
-#
-# 幽零来源（现用包和历史包）
-# 0.1.0 
-#https://github.com/Hope2333/exagear-obb/releases/download/0.1.0/base.obb
-# 愚人节特供版(0.1.0)
-#https://github.com/Hope2333/exagear-obb/releases/download/0.1.0alpha1/base-all.obb
-# 0.0.1026
-#https://github.com/Hope2333/exagear-obb/releases/download/0.0.1026/base-all.zip
-#download base base-minimal1.zip URL
+# 幽零不再提供基包来源，且将基包必源
+# 需要请与作者联系
+#download base base-minimal1.bzp URL
     
     
 
 #
-ver="0.1.0-alpha (tree-s1)"
+ver="0.2.0 (tree-s1)"
 #############################
 # 以下不希望被改变，改了运行容易出问题
-set="-xe"
+#set="-e"
+set="-x +e"
 # 主程序部分
 
 
 
 
 main () {
+      set $set
       set_env $@
   if   [ "$#" == "0" ]
    then
@@ -84,6 +78,7 @@ main () {
     *.*)
         #pass
         clean
+        testpkg
         config_mainzip
         test -d wine-$br-i386 || config_wine-i386
         test -d wine-$br || config_wine
@@ -138,6 +133,12 @@ set_env() {
         if [ "$brg" -gt 4 ];then brn=true;else br=devel;fi
         if [ -n "$brn" ];then br=${2}${br}${branch} ;else true;fi
         if [ -n "$pkgmod" ];then true;else pkgmod=0;fi
+        if [ -n "$ossource" ];then oss="$ossource/$osch/dists/";else oss="https://dl.winehq.org/wine-builds/$osch/dists/";fi
+    #Packages
+        pkgwine="${oss}${channel}/main/binary-i386/wine-${br}_${pkgver}~${channel}${_pkgrel}_i386.deb"
+        pkgwinei="${oss}${channel}/main/binary-i386/wine-$br-i386_${pkgver}~${channel}${_pkgrel}_i386.deb"
+        pkgwinehq="${oss}${channel}/main/binary-i386/winehq-${br}_${pkgver}~${channel}${_pkgrel}_i386.deb"
+
 
 }
 
@@ -145,6 +146,38 @@ pkgrel ()
 {
     if [ -n "$pkgrel" ];then _pkgrel=-$pkgrel;else _pkgrel=-1;fi
 
+}
+
+testpkg () {
+    testdeb=$(curl -Is $pkgwinehq |awk 'NR==1 { print $2 }')
+    case $testdeb in
+     10*) msg11 等待中;;
+     20*) msg3 已找到指定wine版本;;
+     30*) msg7 这是个链接重定向，状态码[$testdeb];;
+     400) ;;
+     401) ;;
+     402) ;;
+     403) ;;
+     404) ;; #
+     405) ;;
+     406) ;;
+     407) ;;
+     408) ;;
+     409) ;;
+     #
+     
+     500) ;; #
+     502) ;; #
+     504) ;; #
+     
+     
+     
+     
+     
+     esac
+}
+tpkg () {
+    true
 }
 
 download ()
@@ -245,31 +278,32 @@ pass ()
 
 error ()
 {
-    set +x
+    #set +x
     case $1 in
-     dler)
-      case $2 in
-       base)
-        err 30
-        ;;
-       wine-${br}-i386)
-        rm -f $downloads/wine-${br}-i386-${channel}-$pkgver.deb || true
-        err 31 $2;;
-       wine-${br} | winehq-${br})
-        err 32 $2;;
-      esac
-    ;;
-    *) err 4
+     dler) dler $2;;
+    3) err 3;;
+    *) err 4;;
+    esac
+}
+
+dler () {
+    case $1 in
+       base) et=$e30_t e1=$e30;err;;
+       wine-$br-i386) rm -f $downloads/wine-$br-i386-$channel-$pkgver.deb || true;et=${1}$e31_t e1=${1}${e31_1} e2=${e31_1} ;err ;exit 31;;
+       wine-$br ) err 32 $1;;
+       winehq-$br ) err 32 $1;;
     esac
 }
 
  err(){
-  e_t=$"$(echo "$"e${1}_t)" e="$(echo '$'e${1})"
   printf "%s\n"
-  printf "%s\n" "   ${e_t}"
+  printf "%s\n" "   ${et}"
   printf "%s\n" "${BOLD}${YELLOW}   --------------------------------------------------"
-  printf "%s\n" "   ${e}"
-
+  printf "%s\n" "   ${e1}"
+  if [ -n "$e2" ];then printf "%s\n" "   ${e2}";else true;fi
+  if [ -n "$e3" ];then printf "%s\n" "   ${e3}";else true;fi
+  if [ -n "$e4" ];then printf "%s\n" "   ${e4}";else true;fi
+  if [ -n "$e5" ];then printf "%s\n" "   ${e5}";else true;fi
  }
 
 clean ()
@@ -320,7 +354,7 @@ config_wine-i386 ()
 {
     mkdir -p wine-$br-i386
     cd wine-$br-i386
-    download wine-$br-i386 wine-$br-$channel-i386-$pkgver.deb https://dl.winehq.org/wine-builds/$osch/dists/${channel}/main/binary-i386/wine-$br-i386_${pkgver}~${channel}${_pkgrel}_i386.deb
+    download wine-$br-i386 wine-$br-$channel-i386-$pkgver.deb $pkgwinei
     cd ..
 }
 
@@ -328,7 +362,7 @@ config_wine ()
 {
     mkdir -p wine-$br
     cd wine-$br
-    download wine-$br wine-$br-$channel-$pkgver.deb https://dl.winehq.org/wine-builds/$osch/dists/${channel}/main/binary-i386/wine-$br_${pkgver}~${channel}${_pkgrel}_i386.deb
+    download wine-$br wine-$br-$channel-$pkgver.deb $pkgwine
     cd ..
 }
 
@@ -336,7 +370,7 @@ config_winehq ()
 {
     mkdir -p winehq-$br
     cd winehq-$br
-    download winehq-$br winehq-$br-$channel-$pkgver.deb https://dl.winehq.org/wine-builds/$osch/dists/${channel}/main/binary-i386/winehq-$br_${pkgver}~${channel}${_pkgrel}_i386.deb
+    download winehq-$br winehq-$br-$channel-$pkgver.deb $pkgwinehq
     cd ..
 }
 
@@ -344,7 +378,7 @@ pkgmake ()
 {
     cd $pkgdir
     #echo -e "'$pass\n"|sudo zip --symlink -rq9 ../wine-dev-$pkgver.zip .
-    sudo zip --symlink -rq9 ../wine-dev-$pkgver.obb .
+    sudo zip --symlink -rq9 ../wine-$br-$pkgver.obb .
     clean
     cd ..
     #echo -e "$pass\n"|sudo rm -rf $pkgdir
