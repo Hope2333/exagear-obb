@@ -6,15 +6,15 @@ The base package(rootfs) will be downloaded automatically when you run the produ
 You may be need to install the following dependencies:
 ### ArchLinux class
 ```sh
-sudo pacman -S tar libarchive zip unzip wget git
+sudo pacman -S tar libarchive xz zip unzip wget git
 ````
 ### Debian, Ubuntu class
 ```sh
-sudo apt-get install zip unzip wget git
+sudo apt-get install zip xz unzip wget git
 ```
 ### RetHat class
 ```sh
-sudo apt-get install tar libarchive zip unzip wget git
+sudo dnf install tar xz bsdtar zip unzip wget git
 ```
 
 ## First
